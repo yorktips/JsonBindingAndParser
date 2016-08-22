@@ -1,0 +1,28 @@
+public class MyObj {
+
+    private PageInfo pageInfo;
+    private List<Post> posts;
+
+    static final class PageInfo {
+        private String pageName;
+        private String pagePic;
+    }
+
+    static final class Post {
+        private String post_id;
+        @JsonProperty("actor_id");
+        private String actorId;
+        @JsonProperty("picOfPersonWhoPosted")
+        private String pictureOfPoster;
+        @JsonProperty("nameOfPersonWhoPosted")
+        private String nameOfPoster;
+        private String likesCount;
+        private List<String> comments;
+        private String timeOfPost;
+    }
+
+    private static final ObjectMapper JACKSON = new ObjectMapper();
+    public static void main(String[] args) throws IOException {
+        MyObj o = JACKSON.readValue(args[0], MyObj.class); // assumes args[0] contains your json payload provided in your question.
+    }
+}

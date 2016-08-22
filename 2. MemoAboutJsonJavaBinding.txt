@@ -1,0 +1,123 @@
+1. Two ways to create Gson objects
+   //First way to create a Gson object for faster coding
+   Gson gson = new Gson();
+ 
+   //Second way to create a Gson object using GsonBuilder
+   Gson gson = new GsonBuilder()
+             .disableHtmlEscaping()
+             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+             .setPrettyPrinting()
+             .serializeNulls()
+             .create();
+
+    Use .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES) or @SerializedName("next_page_token")
+    to let it work with camelcasing(Suggest to use   LOWER_CASE_WITH_UNDERSCORES, it's easier)
+   
+	@SerializedName("next_page_token")
+	private String nextPageToken;
+
+  When using GsonBuilder, there are plenty of other useful options you can provide to Gson object. Go ahead and check them out.
+
+
+2. JAVA object <-> JSON, use GSON or JACKSON third party jars:
+  2.1. gson.toJson(obj)
+    //from object to JSON 
+    Gson gson = new Gson();
+    gson.toJson(yourObject);
+
+    The data order is the variable order in POJO. 
+ 
+  2.2.  gson.fromJson() 
+    // from JSON to object 
+    yourObject o = gson.fromJson(JSONString,yourObject.class);
+	
+
+3.  Custom Serialization and De-serialization (Date type in CLASS, but 2016-01-02 in JSON string).
+    3.1. DateSerializer.java:
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+ 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+ 
+public class DateSerializer implements JsonSerializer<Date>
+{
+   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+   public JsonElement serialize(Date date, Type typeOfSrc, JsonSerializationContext context)
+   {
+      return new JsonPrimitive(dateFormat.format(date));
+   }
+}
+
+    3.2. DateDeserializer.java
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+ 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+ 
+public class DateDeserializer implements JsonDeserializer<Date>
+{
+   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+   public Date deserialize(JsonElement dateStr, Type typeOfSrc, JsonDeserializationContext context)
+   {
+      try
+      {
+         return dateFormat.parse(dateStr.getAsString());
+      } 
+      catch (ParseException e)
+      {
+         e.printStackTrace();
+      }
+      return null;
+   }
+}
+
+  3.3. register these serializer and deserializer with GsonBuilder as below:
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.registerTypeAdapter(Date.class, new DateSerializer());
+    gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
+    Gson gson = gsonBuilder.create();
+
+    gson.fromJson() or gson.toJson() will use the correct date.
+
+
+4. Versioning Support(Dynamicly Control the out):
+   gsonBuilder.setVersion(1.0);
+   Gson gson = gsonBuilder.create();
+
+   Fields added in various versions in Employee.java
+   public class Employee
+   {
+     @Since(1.0)
+     private Integer id;
+     private String firstName;
+     private String lastName;
+    
+     @Since(1.1)
+     private List<String> roles;
+    
+     @Since(1.2)
+     private Date birthDate;
+    
+     //Setters and Getters
+  }
+
+  //Using version 1.0 fields
+  gsonBuilder.setVersion(1.0);
+ 
+  Output:
+  {"id":1,"firstName":"Lokesh","lastName":"Gupta"}
+ 
+  //Using version 1.1 fields
+  gsonBuilder.setVersion(1.1);
+ 
+  Output:
+  {"id":1,"firstName":"Lokesh","lastName":"Gupta","roles":["ADMIN","MANAGER"]}
+ 	

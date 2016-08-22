@@ -1,0 +1,11 @@
+1. If you only pickup small data for one time. use parser.
+2. If you need to use many or frequently, use Binding
+
+/*
+3 ways to parser JSON data
+  (1). use GSON binding(fromJson()). Need to create a Data Class
+  (2). use com.googlecode.json-simple. This is same as DOM. Not good for deep JSON
+  (3). use com.jayway.jsonpath, like XPATH. but it seems array only works less than3. 
+  (4). ObjectMapperBinding
+  Suggest: Use GSON binding
+*/
