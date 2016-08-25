@@ -1,6 +1,6 @@
 1. If you only pickup small data for one time. use parser.
 2. If you need to use many or frequently, use Binding
-
+3. Use XSD schema file to create data class for binding (fromJson and toJson)
 /*
 3 ways to parser JSON data
   (1). use GSON binding(fromJson()). Need to create a Data Class
